@@ -1,14 +1,13 @@
 // Shared TypeScript type definitions
+// Re-export all types from individual files
 
-export interface User {
-  uid: string;
-  email: string;
-  displayName?: string;
-  photoURL?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export * from "./user";
+export * from "./agent";
+export * from "./conversation";
+export * from "./api";
+export * from "./firebase";
 
+// Legacy exports for backward compatibility
 export interface Project {
   id: string;
   name: string;
@@ -34,13 +33,5 @@ export interface AgentSession {
   userId: string;
   createdAt: Date;
   lastMessageAt: Date;
-}
-
-export interface Message {
-  id: string;
-  sessionId: string;
-  role: "user" | "assistant" | "tool";
-  content: string;
-  createdAt: Date;
 }
 

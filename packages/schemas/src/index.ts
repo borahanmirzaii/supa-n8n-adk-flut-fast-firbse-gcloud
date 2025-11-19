@@ -1,22 +1,12 @@
 import { z } from "zod";
 
-// User schemas
-export const userSchema = z.object({
-  uid: z.string(),
-  email: z.string().email(),
-  displayName: z.string().optional(),
-  photoURL: z.string().url().optional(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
+// Re-export all schemas from individual files
+export * from "./user.schema";
+export * from "./agent.schema";
+export * from "./message.schema";
+export * from "./auth.schema";
 
-export const createUserSchema = z.object({
-  email: z.string().email(),
-  displayName: z.string().optional(),
-  photoURL: z.string().url().optional(),
-});
-
-// Project schemas
+// Legacy project and task schemas for backward compatibility
 export const projectSchema = z.object({
   id: z.string(),
   name: z.string().min(1).max(100),
@@ -31,7 +21,6 @@ export const createProjectSchema = z.object({
   memberIds: z.array(z.string()).optional().default([]),
 });
 
-// Task schemas
 export const taskSchema = z.object({
   id: z.string(),
   projectId: z.string(),
@@ -57,22 +46,6 @@ export const updateTaskSchema = z.object({
   assigneeId: z.string().optional(),
 });
 
-// Message schemas
-export const messageSchema = z.object({
-  id: z.string(),
-  sessionId: z.string(),
-  role: z.enum(["user", "assistant", "tool"]),
-  content: z.string(),
-  createdAt: z.date(),
-});
-
-export const createMessageSchema = z.object({
-  sessionId: z.string(),
-  content: z.string().min(1),
-  role: z.enum(["user", "assistant", "tool"]).optional().default("user"),
-});
-
-// Agent session schemas
 export const agentSessionSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -84,10 +57,7 @@ export const createAgentSessionSchema = z.object({
   userId: z.string(),
 });
 
-// Type exports
-export type User = z.infer<typeof userSchema>;
+// Legacy type exports
 export type Project = z.infer<typeof projectSchema>;
 export type Task = z.infer<typeof taskSchema>;
-export type Message = z.infer<typeof messageSchema>;
 export type AgentSession = z.infer<typeof agentSessionSchema>;
-
