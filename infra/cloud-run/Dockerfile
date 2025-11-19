@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for Cloud Run with uv
-FROM python:3.11-slim AS base
+FROM python:3.14-slim AS base
 
 ENV UV_LINK_MODE=copy \
     PYTHONUNBUFFERED=1 \
@@ -18,7 +18,7 @@ RUN uv sync --frozen --no-dev
 COPY apps/agents/app ./app
 
 # Production stage
-FROM python:3.11-slim AS production
+FROM python:3.14-slim AS production
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
