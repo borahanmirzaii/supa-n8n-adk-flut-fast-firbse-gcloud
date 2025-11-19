@@ -47,6 +47,14 @@ dependencies:
   permission_handler: ^11.3.1
   url_launcher: ^6.3.1
 
+  # Forms
+  flutter_form_builder: ^9.3.0
+  form_builder_validators: ^9.1.0
+
+  # Security
+  flutter_secure_storage: ^9.2.2
+  local_auth: ^2.3.0
+
   # Optional
   easy_localization: ^3.0.7
   flutter_local_notifications: ^18.0.1
