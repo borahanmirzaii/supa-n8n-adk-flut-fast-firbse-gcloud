@@ -1,226 +1,299 @@
-# AI Agent App Template
+# AIP Monorepo - World-Class AI Agentic Development Platform
 
-A comprehensive AI agent application template leveraging Google Cloud Platform, Firebase, and modern full-stack technologies.
+A comprehensive, production-ready monorepo template for building AI agent applications with Next.js 16, FastAPI + Google ADK, Flutter, Firebase, and modern tooling.
 
-## Architecture Overview
+## 🏗️ Architecture
 
-This template provides a production-ready foundation for building AI agent applications with:
+This monorepo provides a complete foundation for AI agentic development:
 
-- **Backend**: FastAPI + Google ADK (Agent Development Kit) on Cloud Run
-- **Frontend**: Next.js 14 with ag-ui (from CopilotKit) on Firebase Hosting
-- **Mobile**: Flutter cross-platform app (iOS/Android)
-- **Cloud Infrastructure**: Google Cloud Platform + Firebase
-- **Workflow Automation**: n8n for extensibility and integrations
-- **Database**: Firebase Firestore (NoSQL, real-time)
+- **Web App**: Next.js 16 with Firebase SDK v12, TanStack Query, Zustand, shadcn/ui
+- **Mobile App**: Flutter with Riverpod, Firebase, go_router
+- **Agents API**: FastAPI + Google ADK on Cloud Run with uv
+- **Infrastructure**: Firebase Hosting, Cloud Run, Firestore
+- **CI/CD**: GitHub Actions with Turborepo caching
 
-## Hosting Strategy
+## 📦 Tech Stack
 
-| Component | Hosting Platform | Why |
-|-----------|-----------------|-----|
-| **Next.js 14 Web** | Firebase Hosting + Cloud Functions (SSR) | Seamless Firebase Auth integration, easy CDN + SSR |
-| **FastAPI + ADK** | Google Cloud Run | Python runtime, auto-scaling, GPU support if needed |
-| **Flutter Mobile** | App Store / Play Store | Native iOS/Android distribution |
-| **n8n** | Cloud Run or n8n Cloud | Workflow automation runtime |
-| **Database** | Firebase Firestore | Real-time, mobile-first NoSQL database |
-| **Storage** | Firebase Storage | File uploads and CDN |
-| **Auth** | Firebase Authentication | Unified auth across web/mobile |
+### Monorepo Core
+- **Turborepo**: Fast build system with intelligent caching
+- **pnpm**: Fast, disk space efficient package manager
+- **Changesets**: Versioning and changelog management
+- **Husky + lint-staged**: Git hooks for code quality
 
-## Tech Stack
-
-### Backend (FastAPI + Google ADK)
-- **FastAPI**: High-performance Python web framework
-- **Google ADK**: Agent Development Kit for building AI agents
-- **Firebase Admin SDK**: Server-side Firebase integration
-- **Cloud Run**: Container hosting with auto-scaling
-- **Google Cloud**: AI/ML services, Pub/Sub, Cloud Tasks
-
-### Frontend (Next.js 14)
-- **Next.js 14**: React framework with App Router and SSR
-- **ag-ui (CopilotKit)**: Agent UI components for chat interfaces
-- **Firebase JS SDK**: Client-side Firebase integration
-- **TypeScript**: Type-safe development
-- **Tailwind CSS**: Utility-first styling
+### Web (Next.js 16)
+- **Next.js 16**: React framework with App Router
+- **React 18**: Latest React features
+- **TypeScript**: Strict type checking
+- **Tailwind CSS**: Utility-first styling with shadcn/ui
+- **Zustand**: Lightweight state management
+- **TanStack Query**: Server state management
+- **React Hook Form + Zod**: Form validation
+- **Sentry**: Error tracking
+- **PostHog**: Product analytics
+- **Vitest + Playwright**: Testing stack
 
 ### Mobile (Flutter)
-- **Flutter 3.0+**: Cross-platform mobile framework (iOS/Android)
-- **Dart**: Programming language
-- **Firebase Flutter SDK**: firebase_core, firebase_auth, cloud_firestore
-- **HTTP Client**: Communication with FastAPI backend on Cloud Run
+- **Flutter 3.38+**: Cross-platform framework
+- **Riverpod**: State management
+- **go_router**: Navigation
+- **Firebase**: Auth, Firestore, Storage, Analytics, Crashlytics
+- **Dio**: HTTP client
+- **freezed**: Code generation
 
-### Workflow Automation (n8n)
-- **n8n**: Low-code workflow automation
-- **Custom integrations**: Extend agent capabilities
-- **Webhook triggers**: Event-driven workflows
-- **API connections**: Connect to external services
+### Agents (FastAPI + ADK)
+- **FastAPI 0.121**: High-performance Python framework
+- **Google ADK**: Agent Development Kit
+- **Pydantic v2**: Data validation
+- **structlog**: Structured logging
+- **Sentry**: Error tracking
+- **pytest**: Testing framework
+- **ruff**: Fast linter/formatter
+- **mypy**: Type checking
+- **uv**: Modern Python package manager
 
-## Project Structure
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js**: ≥20 (Firebase JS SDK 12 requires Node 20+)
+- **pnpm**: `npm install -g pnpm@10.22.0`
+- **Python**: ≥3.11
+- **uv**: `pip install uv` or `brew install uv`
+- **Flutter**: 3.38+ stable
+- **Firebase CLI**: `npm install -g firebase-tools`
+- **Google Cloud SDK**: `gcloud` CLI
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd supa-n8n-adk-flut-fast-firbse-gcloud
+
+# Install all dependencies
+pnpm install
+
+# Setup Python environment
+cd apps/agents
+uv sync
+
+# Setup Flutter dependencies
+cd ../mobile
+flutter pub get
+```
+
+### Development
+
+```bash
+# Start all apps in development mode
+pnpm dev
+
+# Or start individually:
+pnpm web:dev          # Next.js web app
+pnpm agents:dev       # FastAPI agents API
+cd apps/mobile && flutter run  # Flutter mobile app
+```
+
+## 📁 Project Structure
 
 ```
 .
-├── backend/                 # FastAPI + Google ADK
-│   ├── app/
-│   │   ├── agents/         # ADK agent implementations
-│   │   ├── api/            # API routes
-│   │   ├── core/           # Configuration & settings
-│   │   ├── models/         # Data models
-│   │   └── services/       # Business logic
-│   ├── requirements.txt
-│   └── main.py
+├── apps/
+│   ├── web/              # Next.js 16 web application
+│   │   ├── app/          # App Router pages and API routes
+│   │   ├── components/   # React components (shadcn/ui)
+│   │   ├── lib/          # Utilities, stores, configs
+│   │   └── tests/        # Vitest + Playwright tests
+│   │
+│   ├── mobile/           # Flutter mobile application
+│   │   ├── lib/
+│   │   │   ├── core/     # Providers, router, utils
+│   │   │   ├── features/ # Feature modules
+│   │   │   └── shared/  # Shared widgets/models
+│   │   └── test/         # Flutter tests
+│   │
+│   └── agents/           # FastAPI + ADK agents API
+│       ├── app/
+│       │   ├── agents/   # Agent implementations
+│       │   ├── tools/    # Agent tools (Firestore, etc.)
+│       │   └── core/     # Config, logging
+│       └── tests/        # pytest tests
 │
-├── frontend/               # Next.js application
-│   ├── app/                # App router
-│   ├── components/         # React components
-│   │   └── ag-ui/         # Agent UI components
-│   ├── lib/                # Utilities
-│   └── package.json
+├── packages/
+│   ├── types/            # Shared TypeScript types
+│   ├── schemas/          # Shared Zod schemas
+│   └── utils/            # Shared utilities
 │
-├── mobile/                 # Flutter application
-│   ├── lib/
-│   │   ├── models/
-│   │   ├── screens/
-│   │   ├── services/
-│   │   └── widgets/
-│   └── pubspec.yaml
+├── infra/
+│   └── cloud-run/        # Dockerfile for Cloud Run
 │
-├── n8n/                    # n8n workflows
-│   ├── workflows/          # Workflow definitions
-│   └── credentials/        # Credential templates
+├── .github/
+│   ├── workflows/        # CI/CD workflows
+│   └── ISSUE_TEMPLATE/   # Issue templates
 │
-├── infrastructure/         # Google Cloud & Firebase
-│   ├── terraform/          # Infrastructure as Code
-│   ├── firebase/           # Firebase config
-│   └── docker/             # Container definitions
-│
-└── docs/                   # Documentation
-    ├── architecture.md
-    ├── setup.md
-    └── deployment.md
+├── turbo.json            # Turborepo configuration
+├── pnpm-workspace.yaml   # pnpm workspace config
+├── firebase.json         # Firebase configuration
+├── firestore.rules       # Firestore security rules
+└── storage.rules         # Storage security rules
 ```
 
-## Features
-
-### AI Agent Capabilities
-- Multi-turn conversations
-- Context-aware responses
-- Tool/function calling
-- Memory and state management
-- Custom agent personalities
-
-### Integration Points
-- Firebase Authentication (user management)
-- Firestore (data persistence)
-- Cloud Storage (file uploads)
-- n8n webhooks (workflow triggers)
-- External API integrations
-
-### Mobile Features
-- Cross-platform (iOS/Android)
-- Real-time chat interface
-- Push notifications
-- Offline support
-- Biometric authentication
-
-## Getting Started
-
-### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- Flutter SDK 3.0+
-- Google Cloud account
-- Firebase project
-- n8n instance (self-hosted or cloud)
-
-### Backend Setup
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Mobile Setup
-```bash
-cd mobile
-flutter pub get
-flutter run
-```
-
-### n8n Setup
-```bash
-cd n8n
-docker-compose up -d
-# Access n8n at http://localhost:5678
-```
-
-## Configuration
+## 🔧 Configuration
 
 ### Environment Variables
 
-**Backend (.env)**
+**Web App** (`apps/web/.env.local`):
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
+AGENT_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_POSTHOG_KEY=your-posthog-key
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+SENTRY_DSN=your-sentry-dsn
 ```
+
+**Agents API** (`apps/agents/.env`):
+```env
+ENVIRONMENT=development
 GOOGLE_CLOUD_PROJECT=your-project-id
-FIREBASE_CREDENTIALS=path/to/serviceAccount.json
-ADK_API_KEY=your-adk-key
-N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook
+GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
+ADK_API_KEY=your-adk-api-key
+CORS_ORIGINS=http://localhost:3000
+SENTRY_DSN=your-sentry-dsn
+LOG_LEVEL=INFO
 ```
 
-**Frontend (.env.local)**
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_FIREBASE_CONFIG={"apiKey":"..."}
-```
-
-**Mobile (lib/config.dart)**
-```dart
-const String apiBaseUrl = 'https://your-api.com';
+**Firebase** (`.firebaserc`):
+```json
+{
+  "projects": {
+    "default": "your-project-id"
+  }
+}
 ```
 
-## Deployment
+## 🧪 Testing
 
-### Google Cloud Deployment
-- **Cloud Run**: FastAPI backend
-- **Firebase Hosting**: Next.js frontend
-- **Cloud Build**: CI/CD pipeline
-- **Cloud Storage**: Static assets
+```bash
+# Run all tests
+pnpm test
 
-### Mobile Deployment
-- **iOS**: App Store via TestFlight
-- **Android**: Google Play Store
+# Web app tests
+cd apps/web
+pnpm test              # Vitest unit tests
+pnpm test:e2e          # Playwright E2E tests
 
-## Development Roadmap
+# Agents API tests
+cd apps/agents
+uv run pytest          # pytest tests
 
-- [ ] Setup base project structure
-- [ ] Configure Google Cloud & Firebase
-- [ ] Implement FastAPI backend with ADK
-- [ ] Build Next.js frontend with ag-ui
-- [ ] Develop Flutter mobile app
-- [ ] Setup n8n workflows
-- [ ] Integrate all components
-- [ ] Add authentication & authorization
-- [ ] Implement monitoring & logging
-- [ ] Write comprehensive documentation
-- [ ] Deploy to production
+# Flutter tests
+cd apps/mobile
+flutter test           # Unit tests
+flutter test integration_test  # Integration tests
+```
 
-## Contributing
+## 🚢 Deployment
 
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
+### Web App (Firebase Hosting)
 
-## License
+```bash
+# Build and deploy
+pnpm web:build
+firebase deploy --only hosting,functions,firestore,storage
+```
+
+### Agents API (Cloud Run)
+
+```bash
+# Build and deploy
+cd infra/cloud-run
+gcloud builds submit --tag gcr.io/PROJECT_ID/aip-agents
+gcloud run deploy aip-agents --image gcr.io/PROJECT_ID/aip-agents
+```
+
+### Mobile App
+
+```bash
+# iOS
+cd apps/mobile
+flutter build ios --release
+
+# Android
+flutter build appbundle --release
+```
+
+## 📚 Documentation
+
+- [Architecture](./docs/architecture.md) - System architecture overview
+- [Setup Guide](./docs/setup.md) - Detailed setup instructions
+- [Deployment](./docs/deployment.md) - Deployment guide
+- [Git Workflow](./docs/git-workflow.md) - Git branching and workflow
+- [Contributing](./docs/contributing.md) - Contribution guidelines
+
+## 🛠️ Available Scripts
+
+### Root Level
+- `pnpm dev` - Start all apps in development
+- `pnpm build` - Build all apps
+- `pnpm test` - Run all tests
+- `pnpm lint` - Lint all code
+- `pnpm type-check` - Type check all TypeScript
+- `pnpm changeset` - Create a changeset
+- `pnpm release` - Release packages
+
+### Web App
+- `pnpm web:dev` - Start Next.js dev server
+- `pnpm web:build` - Build for production
+- `pnpm web:lint` - Lint web app
+
+### Agents API
+- `pnpm agents:dev` - Start FastAPI dev server
+
+## 🔐 Security
+
+- Firestore security rules (version 2)
+- Storage security rules
+- Environment variable validation with t3-env
+- Pre-commit hooks for code quality
+- Dependabot for dependency updates
+
+## 📊 Monitoring & Observability
+
+- **Sentry**: Error tracking (web + agents)
+- **PostHog**: Product analytics (web)
+- **Firebase Analytics**: Mobile analytics
+- **Firebase Crashlytics**: Mobile crash reporting
+- **Google Cloud Logging**: Structured logging (agents)
+- **structlog**: Structured JSON logging (agents)
+- **Pino**: Fast JSON logging (web)
+
+## 🤝 Contributing
+
+1. Read [Contributing Guide](./docs/contributing.md)
+2. Create a feature branch from `main`
+3. Make your changes
+4. Run tests and linting
+5. Create a pull request
+
+## 📝 License
 
 MIT License - see LICENSE file for details
 
-## Support
+## 🙏 Acknowledgments
 
-For issues and questions, please open a GitHub issue.
+Built with:
+- [Turborepo](https://turbo.build)
+- [Next.js](https://nextjs.org)
+- [FastAPI](https://fastapi.tiangolo.com)
+- [Flutter](https://flutter.dev)
+- [Firebase](https://firebase.google.com)
+- [Google ADK](https://github.com/google/adk-python)
 
 ---
 
-**Built with Google Cloud, Firebase, FastAPI, Next.js, Flutter, and n8n**
+**Ready to build amazing AI agents? Start developing! 🚀**

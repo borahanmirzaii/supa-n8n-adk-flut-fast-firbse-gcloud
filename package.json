@@ -1,0 +1,45 @@
+{
+  "name": "aip-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.22.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "turbo run build && changeset publish",
+    "web:dev": "pnpm --filter @aip/web dev",
+    "web:build": "pnpm --filter @aip/web build",
+    "web:lint": "pnpm --filter @aip/web lint",
+    "mobile:dev": "pnpm --filter @aip/mobile dev",
+    "agents:dev": "cd apps/agents && uv run uvicorn app.main:app --reload",
+    "firebase:deploy:web": "firebase deploy --only hosting,functions,firestore,storage"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.2.5",
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
+

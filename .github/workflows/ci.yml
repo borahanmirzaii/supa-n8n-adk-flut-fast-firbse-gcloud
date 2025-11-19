@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.22.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  agents-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.9.x"
+
+      - name: Install dependencies
+        working-directory: apps/agents
+        run: uv sync --dev
+
+      - name: Lint with ruff
+        working-directory: apps/agents
+        run: uv run ruff check .
+
+      - name: Format check with ruff
+        working-directory: apps/agents
+        run: uv run ruff format --check .
+
+      - name: Type check with mypy
+        working-directory: apps/agents
+        run: uv run mypy app
+        continue-on-error: true
+
+      - name: Test with pytest
+        working-directory: apps/agents
+        run: uv run pytest
+
