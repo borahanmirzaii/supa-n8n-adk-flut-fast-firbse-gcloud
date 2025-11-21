@@ -1,0 +1,84 @@
+# mise configuration - Runtime version management
+# Install: brew install mise or curl https://mise.run | sh
+# Docs: https://mise.jdx.dev
+
+[tools]
+# Node.js - Required for Next.js, Firebase CLI, pnpm
+node = "20.18.0"
+
+# Python - Required for FastAPI agents API
+python = "3.11.9"
+
+# pnpm - Package manager
+pnpm = "10.22.0"
+
+# uv - Python package manager
+uv = "0.5.0"
+
+# Firebase CLI - For emulators and deployment
+firebase = "13.0.0"
+
+# Just - Command runner
+just = "1.40.0"
+
+[tools.node]
+# Node.js settings
+version = "20.18.0"
+
+[tools.python]
+# Python settings
+version = "3.11.9"
+# Use system Python if available, otherwise install
+# Note: uv manages its own Python, but mise can ensure Python is available
+
+[tools.pnpm]
+# pnpm settings
+version = "10.22.0"
+
+[tools.uv]
+# uv settings
+version = "0.5.0"
+
+[tools.firebase]
+# Firebase CLI settings
+version = "13.0.0"
+
+[tools.just]
+# Just settings
+version = "1.40.0"
+
+# Environment variables set when mise is active
+[env]
+# Ensure mise-managed tools are in PATH
+MISE_SHELL_ENV = "1"
+# M4 Max optimizations
+MISE_USE_TOML = "1"
+MISE_EXPERIMENTAL = "1"
+# Node.js unified memory optimization
+NODE_OPTIONS = "--max-old-space-size=8192"
+# uv parallel downloads/installs (use all M4 cores)
+UV_CONCURRENT_DOWNLOADS = "16"
+UV_CONCURRENT_INSTALLS = "16"
+# Rust/Cargo parallel builds (for Rust-based tools)
+CARGO_BUILD_JOBS = "16"
+# OrbStack Docker socket
+DOCKER_HOST = "unix://$HOME/.orbstack/run/docker.sock"
+ORBSTACK_ENV = "1"
+
+# Project-specific settings
+[settings]
+# Auto-install tools when entering directory
+auto_install = true
+# Trust .envrc files (works with direnv)
+trust_envrc = true
+# Use all M4 cores for parallel operations
+experimental = true
+jobs = 16
+
+# Team-specific profiles
+[profile.backend]
+python = "3.11.9"
+
+[profile.frontend]
+node = "20.18.0"
+

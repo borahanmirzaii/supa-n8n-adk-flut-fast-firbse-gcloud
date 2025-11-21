@@ -1,0 +1,114 @@
+# Cursor Rules for AIP Monorepo
+
+## Development Workflow
+
+When developing in this project:
+
+1. **Always use `just` commands** instead of direct npm/docker commands
+   - ✅ `just dev:all` (not `pnpm dev`)
+   - ✅ `just docker:logs` (not `docker compose logs`)
+   - ✅ `just build` (not `pnpm build`)
+
+2. **Ensure OrbStack is running** before starting development
+   - Check: `orbstack info` or `just preflight`
+   - Start: `orbstack start` if not running
+
+3. **Use `just dev:all`** for full stack development
+   - This starts FastAPI, Firebase Emulators, and Next.js in parallel (M4 Max optimized)
+   - Wait for postflight checks to complete before assuming services are ready
+
+4. **Check `just health`** if services aren't responding
+   - Verifies all services are healthy
+   - Shows status of Agents API, Web App, and Firebase UI
+
+5. **Use `just perf:profile`** to diagnose performance issues
+   - Profiles performance on M4 Max
+   - Requires Xcode Command Line Tools
+
+## Common Workflows
+
+### Fresh Start
+```bash
+just docker:reset && just dev:all
+```
+
+### Quick Restart
+```bash
+just docker:down && just dev:all
+```
+
+### View Logs
+```bash
+just docker:logs        # FastAPI logs
+# Next.js logs appear in terminal where dev:web was started
+# Firebase logs appear in terminal where dev:emulators was started
+```
+
+### Check Performance
+```bash
+just orbstack:stats     # OrbStack machine stats
+just perf:memory        # Unified memory usage
+```
+
+### Seed Test Data
+```bash
+# Start emulators first
+just dev:emulators &
+# Then seed
+just emulators:seed
+```
+
+### Troubleshooting
+```bash
+just dev-troubleshoot   # Run diagnostics
+just ports:check        # Check port conflicts
+just preflight          # Verify prerequisites
+```
+
+## File Organization
+
+- **FastAPI code**: `apps/agents/app/`
+- **Next.js code**: `apps/web/app/`
+- **Shared types**: `packages/types/`
+- **Shared schemas**: `packages/schemas/`
+- **Scripts**: `scripts/`
+- **Documentation**: `docs/`
+
+## Environment Variables
+
+- **Web app**: `.env.local` (not committed)
+- **FastAPI**: `apps/agents/.env` (not committed)
+- **Templates**: `.env.local.example` and `apps/agents/.env.example`
+
+## Testing
+
+- **All tests**: `just test`
+- **Web tests**: `just test:web`
+- **API tests**: `just test:api`
+- **Watch mode**: `just test:watch`
+
+## Performance Optimization (M4 Max)
+
+- Services start in parallel when OrbStack is detected
+- All builds use all CPU cores (`TURBO_FORCE_PARALLELISM=16`)
+- Unified memory is optimized for Node.js and Python
+- Native ARM64 containers (no Rosetta emulation)
+
+## Best Practices
+
+1. **Always run preflight checks** before starting development
+2. **Use health checks** to verify services are ready
+3. **Check logs** when debugging issues
+4. **Reset environment** if things get stuck: `just dev-reset`
+5. **Verify M4 Max setup**: `./scripts/verify-m4.sh`
+
+## Architecture Decisions
+
+- See `docs/decisions/` for all ADRs
+- Key decisions documented for:
+  - Justfile usage
+  - Firebase Emulators
+  - Docker for FastAPI
+  - mise + direnv
+  - OrbStack over Docker Desktop
+

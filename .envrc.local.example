@@ -1,0 +1,9 @@
+# .envrc.local - Local environment overrides (not committed to git)
+# Copy this to .envrc.local and customize
+# direnv will automatically load this if it exists
+
+# Override any project defaults here
+# Example:
+# export FIRESTORE_EMULATOR_HOST="localhost:8082"
+# export NODE_ENV="test"
+
