@@ -17,7 +17,7 @@ services:
       - ENVIRONMENT=development
       - API_HOST=0.0.0.0
       - API_PORT=8080
-      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
       - GOOGLE_CLOUD_PROJECT=demo-project
       # Connect to Firestore Emulator (OrbStack magic hostname)
       - FIRESTORE_EMULATOR_HOST=host.orbstack.internal:8081
@@ -36,7 +36,8 @@ services:
       - GODEBUG=madvdontneed=1  # Better memory return to OS
     volumes:
       # Hot reload - mount source code (OrbStack virtioFS optimized, no :delegated needed)
-      - ./apps/agents:/app/app
+      # Mount the app directory contents directly to /app/app
+      - ./apps/agents/app:/app/app:ro
       - ./apps/agents/pyproject.toml:/app/pyproject.toml:ro
       - ./apps/agents/uv.lock:/app/uv.lock:ro
       - /app/.venv  # Prevent venv from being overwritten
@@ -61,12 +62,7 @@ services:
     command: >
       sh -c "
         uv sync --frozen &&
-        uv run uvicorn app.main:app 
-          --host 0.0.0.0 
-          --port 8080 
-          --reload 
-          --reload-dir /app/app
-          --loop uvloop
+        uv run uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload --reload-dir /app/app --loop uvloop
       "
 
 networks:
