@@ -6,6 +6,7 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import {
   getAuth,
+  connectAuthEmulator,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -18,13 +19,18 @@ import {
   type User,
   type Auth,
 } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { getFirestore, connectFirestoreEmulator, type Firestore } from "firebase/firestore";
+import { getStorage, connectStorageEmulator, type Storage } from "firebase/storage";
 import { env } from "../env";
 import { logger } from "../logger";
 
 let app: FirebaseApp;
 let authInstance: Auth;
+let firestoreInstance: Firestore;
+let storageInstance: Storage;
+
+const isDevelopment = process.env.NODE_ENV === "development";
+const useEmulators = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true";
 
 /**
  * Get or initialize Firebase app
@@ -41,6 +47,44 @@ export const getFirebaseApp = (): FirebaseApp => {
         appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
       });
       logger.info("Firebase app initialized");
+
+      // Connect to emulators in development
+      if (isDevelopment && useEmulators) {
+        // Auth emulator
+        if (!authInstance) {
+          authInstance = getAuth(app);
+          try {
+            connectAuthEmulator(authInstance, "http://localhost:9099", {
+              disableWarnings: true,
+            });
+            logger.info("Connected to Auth emulator");
+          } catch (error) {
+            // Already connected, ignore
+          }
+        }
+
+        // Firestore emulator
+        if (!firestoreInstance) {
+          firestoreInstance = getFirestore(app);
+          try {
+            connectFirestoreEmulator(firestoreInstance, "localhost", 8081);
+            logger.info("Connected to Firestore emulator");
+          } catch (error) {
+            // Already connected, ignore
+          }
+        }
+
+        // Storage emulator
+        if (!storageInstance) {
+          storageInstance = getStorage(app);
+          try {
+            connectStorageEmulator(storageInstance, "localhost", 9199);
+            logger.info("Connected to Storage emulator");
+          } catch (error) {
+            // Already connected, ignore
+          }
+        }
+      }
     } catch (error) {
       logger.error({ error }, "Failed to initialize Firebase app");
       throw new Error("Failed to initialize Firebase. Please check your configuration.");
@@ -68,25 +112,23 @@ export const auth = (): Auth => {
 /**
  * Get Firestore instance
  */
-export const db = () => {
-  try {
-    return getFirestore(getFirebaseApp());
-  } catch (error) {
-    logger.error({ error }, "Failed to get Firestore instance");
-    throw new Error("Failed to initialize Firestore.");
+export const db = (): Firestore => {
+  if (!firestoreInstance) {
+    getFirebaseApp();
+    firestoreInstance = getFirestore(app);
   }
+  return firestoreInstance;
 };
 
 /**
  * Get Storage instance
  */
-export const storage = () => {
-  try {
-    return getStorage(getFirebaseApp());
-  } catch (error) {
-    logger.error({ error }, "Failed to get Storage instance");
-    throw new Error("Failed to initialize Storage.");
+export const storage = (): Storage => {
+  if (!storageInstance) {
+    getFirebaseApp();
+    storageInstance = getStorage(app);
   }
+  return storageInstance;
 };
 
 /**
