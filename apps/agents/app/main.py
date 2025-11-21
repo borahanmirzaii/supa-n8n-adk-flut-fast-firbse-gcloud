@@ -17,7 +17,7 @@ from app.core.config import settings
 from app.core.logger import configure_logging
 from app.core.firebase_admin import initialize_firebase_admin
 from app.core.middleware import RequestLoggingMiddleware, ErrorHandlingMiddleware
-from app.api.v1 import agents, chat
+from app.api.v1 import agents, chat, health
 from app.core.exceptions import (
     AgentNotFoundError,
     SessionNotFoundError,
@@ -92,6 +92,7 @@ chat.set_limiter(limiter)
 # Include routers
 app.include_router(agents.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
+app.include_router(health.router, prefix="/api/v1")
 
 # Exception handlers
 @app.exception_handler(AgentNotFoundError)
