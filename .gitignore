@@ -102,3 +102,12 @@ build/
 .temp/
 tmp/
 
+# mise
+.mise/
+.mise.toml.local
+
+# direnv
+.envrc.local
+.direnv/
+# Note: .envrc should be committed (it's version controlled)
+
