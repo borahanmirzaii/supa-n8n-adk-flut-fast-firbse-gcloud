@@ -21,32 +21,6 @@ firebase = "13.0.0"
 # Just - Command runner
 just = "1.40.0"
 
-[tools.node]
-# Node.js settings
-version = "20.18.0"
-
-[tools.python]
-# Python settings
-version = "3.11.9"
-# Use system Python if available, otherwise install
-# Note: uv manages its own Python, but mise can ensure Python is available
-
-[tools.pnpm]
-# pnpm settings
-version = "10.22.0"
-
-[tools.uv]
-# uv settings
-version = "0.5.0"
-
-[tools.firebase]
-# Firebase CLI settings
-version = "13.0.0"
-
-[tools.just]
-# Just settings
-version = "1.40.0"
-
 # Environment variables set when mise is active
 [env]
 # Ensure mise-managed tools are in PATH

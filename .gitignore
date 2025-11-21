@@ -111,3 +111,4 @@ tmp/
 .direnv/
 # Note: .envrc should be committed (it's version controlled)
 
+.cursor/

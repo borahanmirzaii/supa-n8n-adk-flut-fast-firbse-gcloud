@@ -70,12 +70,12 @@ _check_mise_tools:
 
 _check_ports:
     @echo "🔍 Checking if ports are available..."
-    @lsof -ti:8080 > /dev/null 2>&1 && (echo "⚠️  Port 8080 is in use (FastAPI)" || true)
-    @lsof -ti:3000 > /dev/null 2>&1 && (echo "⚠️  Port 3000 is in use (Next.js)" || true)
-    @lsof -ti:8081 > /dev/null 2>&1 && (echo "⚠️  Port 8081 is in use (Firestore Emulator)" || true)
-    @lsof -ti:9099 > /dev/null 2>&1 && (echo "⚠️  Port 9099 is in use (Auth Emulator)" || true)
-    @lsof -ti:9199 > /dev/null 2>&1 && (echo "⚠️  Port 9199 is in use (Storage Emulator)" || true)
-    @lsof -ti:4000 > /dev/null 2>&1 && (echo "⚠️  Port 4000 is in use (Firebase UI)" || true)
+    @-lsof -ti:8080 > /dev/null 2>&1 && echo "⚠️  Port 8080 is in use (FastAPI)" || true
+    @-lsof -ti:3000 > /dev/null 2>&1 && echo "⚠️  Port 3000 is in use (Next.js)" || true
+    @-lsof -ti:8081 > /dev/null 2>&1 && echo "⚠️  Port 8081 is in use (Firestore Emulator)" || true
+    @-lsof -ti:9099 > /dev/null 2>&1 && echo "⚠️  Port 9099 is in use (Auth Emulator)" || true
+    @-lsof -ti:9199 > /dev/null 2>&1 && echo "⚠️  Port 9199 is in use (Storage Emulator)" || true
+    @-lsof -ti:4000 > /dev/null 2>&1 && echo "⚠️  Port 4000 is in use (Firebase UI)" || true
     @echo "✅ Port check complete"
 
 _check_env_files:
@@ -154,32 +154,32 @@ default:
 # Start all services (Next.js + FastAPI + Firebase Emulators) with checks
 dev: preflight
     @echo "🚀 Starting all development services..."
-    @just dev:all:internal
+    @just dev-all-internal
 
 # Alias for quick access
-alias d := dev:all
+alias d := dev
 alias t := test
 alias b := build
 alias h := health
 alias s := status
 
 # Internal: Start all services (no preflight) with M4 Max parallel execution
-dev:all:internal:
+dev-all-internal:
     #!/usr/bin/env bash
     if [[ "{{is_orbstack}}" == "true" ]]; then
         echo "🚀 Detected OrbStack on Apple Silicon - Using parallel execution"
         # Launch services in parallel for M4 Max
-        (just dev:api:internal &)
-        (just dev:emulators:internal &)
-        (just dev:web:internal &)
+        (just dev-api-internal &)
+        (just dev-emulators-internal &)
+        (just dev-web-internal &)
         wait
     else
         echo "🚀 Starting services sequentially..."
-        just dev:api:internal
+        just dev-api-internal
         sleep 2
-        just dev:emulators:internal &
+        just dev-emulators-internal &
         sleep 2
-        just dev:web:internal &
+        just dev-web-internal &
         sleep 3
     fi
     @just postflight
@@ -192,41 +192,41 @@ dev:all:internal:
     @echo "  • Firebase UI:    http://localhost:4000"
 
 # Internal: Start API (no checks)
-dev:api:internal:
+dev-api-internal:
     @docker compose up -d agents-api
     @echo "⏳ Waiting for Agents API to start..."
     @sleep 5
 
 # Internal: Start emulators (no checks)
-dev:emulators:internal:
+dev-emulators-internal:
     @firebase emulators:start --only auth,firestore,storage,ui > /dev/null 2>&1 &
     @echo "⏳ Waiting for Firebase Emulators..."
     @sleep 3
 
 # Internal: Start web (no checks)
-dev:web:internal:
+dev-web-internal:
     @pnpm --filter @aip/web dev > /dev/null 2>&1 &
     @sleep 3
 
 # Start FastAPI agents API in Docker with checks
-dev:api: preflight _check_docker
+dev-api: preflight _check_docker
     @echo "🚀 Starting FastAPI Agents API..."
     @docker compose up -d agents-api
     @sleep 3
     @just _postflight_api
 
 # Start Next.js web app locally with checks
-dev:web: preflight _check_pnpm _check_node
+dev-web: preflight _check_pnpm _check_node
     @echo "🚀 Starting Next.js web app..."
     @pnpm --filter @aip/web dev
 
 # Start Firebase emulators with checks
-dev:emulators: preflight _check_firebase_cli
+dev-emulators: preflight _check_firebase_cli
     @echo "🔥 Starting Firebase Emulators..."
     @firebase emulators:start --only auth,firestore,storage,ui
 
 # Seed Firebase emulators with test data
-emulators:seed: preflight _check_firebase_cli
+emulators-seed: preflight _check_firebase_cli
     @echo "🌱 Seeding Firebase Emulators with test data..."
     @firebase emulators:exec "node scripts/firebase/seed-emulators.js" --only auth,firestore
 
@@ -235,24 +235,24 @@ emulators:seed: preflight _check_firebase_cli
 # ============================================================================
 
 # Start Docker services with checks
-docker:up: preflight _check_docker
+docker-up: preflight _check_docker
     @echo "📦 Starting Docker services..."
     @docker compose up -d
     @sleep 3
     @just _postflight_api
 
 # Stop Docker services
-docker:down:
+docker-down:
     @echo "🛑 Stopping Docker services..."
     @docker compose down
     @echo "✅ Docker services stopped"
 
 # View Docker logs
-docker:logs:
+docker-logs:
     @docker compose logs -f agents-api
 
 # Rebuild Docker containers with checks
-docker:rebuild: preflight _check_docker
+docker-rebuild: preflight _check_docker
     @echo "🔨 Rebuilding Docker containers..."
     @docker compose build --no-cache agents-api
     @docker compose up -d agents-api
@@ -260,21 +260,21 @@ docker:rebuild: preflight _check_docker
     @just _postflight_api
 
 # Reset Docker environment completely
-docker:reset:
+docker-reset:
     @echo "🔄 Resetting Docker environment..."
     @docker compose down -v
     @docker system prune -f
     @echo "✅ Docker environment reset"
 
 # Prune Docker resources
-docker:prune:
+docker-prune:
     @echo "🧹 Pruning Docker resources..."
     @docker system prune -f
     @docker volume prune -f
     @echo "✅ Docker resources pruned"
 
 # Check port availability
-ports:check:
+ports-check:
     @echo "🔍 Checking port availability..."
     @lsof -ti:8080 > /dev/null 2>&1 && echo "⚠️  Port 8080 is in use (FastAPI)" || echo "✅ Port 8080 available"
     @lsof -ti:3000 > /dev/null 2>&1 && echo "⚠️  Port 3000 is in use (Next.js)" || echo "✅ Port 3000 available"
@@ -295,19 +295,19 @@ install: preflight
     @echo "✅ Dependencies installed"
 
 # Install Python dependencies only with checks
-install:python: _check_uv _check_python
+install-python: _check_uv _check_python
     @echo "📦 Installing Python dependencies..."
     @cd apps/agents && uv sync
     @echo "✅ Python dependencies installed"
 
 # Install Node.js dependencies only with checks
-install:node: _check_pnpm _check_node
+install-node: _check_pnpm _check_node
     @echo "📦 Installing Node.js dependencies..."
     @pnpm install
     @echo "✅ Node.js dependencies installed"
 
 # Setup mise and direnv
-setup:mise:
+setup-mise:
     @echo "🔧 Setting up mise..."
     @if ! command -v mise > /dev/null 2>&1; then \
         echo "Installing mise..."; \
@@ -316,7 +316,7 @@ setup:mise:
     @mise install
     @echo "✅ mise setup complete"
 
-setup:direnv:
+setup-direnv:
     @echo "🔧 Setting up direnv..."
     @if ! command -v direnv > /dev/null 2>&1; then \
         echo "Installing direnv..."; \
@@ -346,7 +346,7 @@ setup: preflight
     @echo "  3. Run 'just dev:all' to start development"
 
 # Setup everything (mise + direnv + project)
-setup:all: preflight
+setup-all: preflight
     @echo "🔧 Setting up complete development environment..."
     @just setup:mise
     @just setup:direnv
@@ -372,13 +372,13 @@ build: preflight _check_pnpm _check_node
     @echo "✅ Build complete"
 
 # Build web app with checks
-build:web: preflight _check_pnpm _check_node
+build-web: preflight _check_pnpm _check_node
     @echo "🔨 Building web app..."
     @pnpm --filter @aip/web build
     @echo "✅ Web app built"
 
 # Build agents API (Docker) with checks
-build:api: preflight _check_docker
+build-api: preflight _check_docker
     @echo "🔨 Building Agents API..."
     @docker compose build agents-api
     @echo "✅ Agents API built"
@@ -395,18 +395,18 @@ test: preflight _check_pnpm _check_node _check_uv
     @echo "✅ Tests complete"
 
 # Run tests in watch mode
-test:watch: preflight _check_pnpm _check_node
+test-watch: preflight _check_pnpm _check_node
     @echo "🧪 Running tests in watch mode..."
     @pnpm --filter @aip/web test --watch
 
 # Run web app tests with checks
-test:web: preflight _check_pnpm _check_node
+test-web: preflight _check_pnpm _check_node
     @echo "🧪 Running web app tests..."
     @pnpm --filter @aip/web test
     @echo "✅ Web tests complete"
 
 # Run agents API tests with checks
-test:api: preflight _check_uv _check_python
+test-api: preflight _check_uv _check_python
     @echo "🧪 Running Agents API tests..."
     @cd apps/agents && uv run pytest
     @echo "✅ API tests complete"
@@ -429,7 +429,7 @@ format: preflight _check_pnpm _check_node _check_uv
     @echo "✅ Formatting complete"
 
 # Check formatting with checks
-format:check: preflight _check_pnpm _check_node _check_uv
+format-check: preflight _check_pnpm _check_node _check_uv
     @echo "🔍 Checking code formatting..."
     @prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}" || (echo "❌ Prettier check failed" && exit 1)
     @cd apps/agents && uv run ruff format --check . || (echo "❌ Ruff check failed" && exit 1)
@@ -455,7 +455,7 @@ clean:
     @echo "✅ Clean complete"
 
 # Clean Docker volumes
-clean:docker:
+clean-docker:
     @echo "🧹 Cleaning Docker volumes..."
     @docker compose down -v
     @echo "✅ Docker volumes cleaned"
@@ -485,19 +485,19 @@ dev-troubleshoot:
 # ============================================================================
 
 # Deploy to Firebase with checks
-firebase:deploy: preflight _check_firebase_cli
+firebase-deploy: preflight _check_firebase_cli
     @echo "🚀 Deploying to Firebase..."
     @firebase deploy --only hosting,functions,firestore,storage
     @echo "✅ Firebase deployment complete"
 
 # Deploy only hosting with checks
-firebase:deploy:hosting: preflight _check_firebase_cli
+firebase-deploy-hosting: preflight _check_firebase_cli
     @echo "🚀 Deploying hosting..."
     @firebase deploy --only hosting
     @echo "✅ Hosting deployed"
 
 # Deploy only Firestore rules with checks
-firebase:deploy:firestore: preflight _check_firebase_cli
+firebase-deploy-firestore: preflight _check_firebase_cli
     @echo "🚀 Deploying Firestore rules..."
     @firebase deploy --only firestore
     @echo "✅ Firestore rules deployed"
@@ -520,7 +520,7 @@ health:
 # ============================================================================
 
 # Show OrbStack VM info
-orbstack:vm:
+orbstack-vm:
     @if command -v orbstack > /dev/null 2>&1; then \
         orbstack info; \
     else \
@@ -528,7 +528,7 @@ orbstack:vm:
     fi
 
 # Reset OrbStack Docker
-orbstack:reset:
+orbstack-reset:
     @if command -v orbstack > /dev/null 2>&1; then \
         echo "🔄 Resetting OrbStack Docker..."; \
         orbstack reset docker; \
@@ -538,7 +538,7 @@ orbstack:reset:
     fi
 
 # Show OrbStack machine stats
-orbstack:stats:
+orbstack-stats:
     @if command -v orbstack > /dev/null 2>&1; then \
         orbstack machine stats; \
     else \
@@ -546,7 +546,7 @@ orbstack:stats:
     fi
 
 # Optimize OrbStack resources
-orbstack:optimize:
+orbstack-optimize:
     @if command -v orbstack > /dev/null 2>&1; then \
         echo "⚙️  Optimizing OrbStack resources..."; \
         orbstack machine stop; \
@@ -560,7 +560,7 @@ orbstack:optimize:
 # ============================================================================
 
 # Profile performance with xctrace
-perf:profile:
+perf-profile:
     #!/usr/bin/env bash
     echo "📊 Running performance profile on M4 Max"
     if command -v xcrun > /dev/null 2>&1; then
@@ -570,7 +570,7 @@ perf:profile:
     fi
 
 # Check memory usage with unified memory awareness
-perf:memory:
+perf-memory:
     #!/usr/bin/env bash
     echo "💾 Memory usage (Unified Memory Architecture)"
     echo "=============================================="
@@ -622,7 +622,7 @@ docs:
     @open docs/architecture.md 2>/dev/null || xdg-open docs/architecture.md 2>/dev/null || echo "Open docs/architecture.md manually"
 
 # Create new ADR (Architecture Decision Record)
-adr:new name:
+adr-new name:
     @mkdir -p docs/decisions
     @echo "# $(shell echo '{{name}}' | tr '[:lower:]' '[:upper:]' | tr ' ' '-')" > docs/decisions/$(shell date +%Y%m%d)-$(shell echo '{{name}}' | tr '[:upper:]' '[:lower:]' | tr ' ' '-').md
     @echo "" >> docs/decisions/$(shell date +%Y%m%d)-$(shell echo '{{name}}' | tr '[:upper:]' '[:lower:]' | tr ' ' '-').md

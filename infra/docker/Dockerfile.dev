@@ -17,9 +17,10 @@ RUN apt-get update && apt-get install -y \
 ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
 ENV MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true"
 
-# Parallel compilation for faster builds
-ENV MAKEFLAGS="-j$(nproc)"
-ENV CFLAGS="-march=armv8.5-a+crypto+sve2"  # M4 architecture optimizations
+    # Parallel compilation for faster builds
+    ENV MAKEFLAGS="-j$(nproc)"
+    # M4 architecture optimizations
+    ENV CFLAGS="-march=armv8.5-a+crypto+sve2"
 
 # Install uv
 RUN pip install --no-cache-dir uv
