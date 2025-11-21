@@ -5,7 +5,8 @@ import platform
 from typing import Optional
 
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
+from firebase_admin import credentials, firestore
+from google.cloud import storage as gcs_storage
 import structlog
 
 from app.core.config import settings
@@ -13,7 +14,7 @@ from app.core.config import settings
 logger = structlog.get_logger()
 
 _firestore_client: Optional[firestore.Client] = None
-_storage_client: Optional[storage.Client] = None
+_storage_client: Optional[gcs_storage.Client] = None
 
 
 def get_emulator_host() -> str:
@@ -83,7 +84,7 @@ def initialize_firebase_admin() -> None:
             storage_emulator_host = os.getenv("FIREBASE_STORAGE_EMULATOR_HOST", "localhost:9199")
             logger.info(f"Using Storage emulator at {storage_emulator_host}")
         
-        _storage_client = storage.bucket()
+        _storage_client = gcs_storage.Client()
         logger.info("Storage client initialized", emulator=is_emulator)
 
     except Exception as e:
@@ -99,7 +100,7 @@ def get_firestore_client() -> firestore.Client:
     return _firestore_client
 
 
-def get_storage_client() -> storage.Bucket:
+def get_storage_client() -> gcs_storage.Client:
     """Get Storage client instance."""
     if _storage_client is None:
         initialize_firebase_admin()

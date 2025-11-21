@@ -14,8 +14,13 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8080
 
-    # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    # CORS - comma-separated string from env, converted to list
+    CORS_ORIGINS: str = "http://localhost:3000"
+    
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Convert CORS_ORIGINS string to list."""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
 
     # Firebase
     GOOGLE_CLOUD_PROJECT: str = ""
