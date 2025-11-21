@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  # FastAPI Agents API - Hot reload with uv (OrbStack + M4 Max Optimized)
+  agents-api:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.dev
+      platforms:
+        - linux/arm64  # Native M4 architecture
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        TARGETARCH: arm64
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=development
+      - API_HOST=0.0.0.0
+      - API_PORT=8080
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+      - GOOGLE_CLOUD_PROJECT=demo-project
+      # Connect to Firestore Emulator (OrbStack magic hostname)
+      - FIRESTORE_EMULATOR_HOST=host.orbstack.internal:8081
+      - GCLOUD_PROJECT=demo-project
+      # ADK (optional for local dev)
+      - ADK_API_KEY=${ADK_API_KEY:-}
+      - LOG_LEVEL=DEBUG
+      # Disable Sentry in local dev
+      - SENTRY_DSN=
+      # M4 Max optimizations
+      - PYTHON_GIL=0  # Python 3.13+ nogil for M4 cores
+      - UV_SYSTEM_PYTHON=true
+      - UV_COMPILE_BYTECODE=1
+      - OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES  # macOS fork optimization
+      - MALLOC_ARENA_MAX=2  # Unified memory optimization
+      - GODEBUG=madvdontneed=1  # Better memory return to OS
+    volumes:
+      # Hot reload - mount source code (OrbStack virtioFS optimized, no :delegated needed)
+      - ./apps/agents:/app/app
+      - ./apps/agents/pyproject.toml:/app/pyproject.toml:ro
+      - ./apps/agents/uv.lock:/app/uv.lock:ro
+      - /app/.venv  # Prevent venv from being overwritten
+    networks:
+      - aip-network
+    deploy:
+      resources:
+        limits:
+          cpus: '8'  # M4 Max has plenty of cores
+          memory: 8G  # Can go higher with M4 Max's unified memory
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    # Use uv with hot reload and uvloop for better async performance
+    command: >
+      sh -c "
+        uv sync --frozen &&
+        uv run uvicorn app.main:app 
+          --host 0.0.0.0 
+          --port 8080 
+          --reload 
+          --reload-dir /app/app
+          --loop uvloop
+      "
+
+networks:
+  aip-network:
+    driver: bridge
+    name: aip-network
+

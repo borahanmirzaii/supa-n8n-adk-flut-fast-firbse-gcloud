@@ -1,0 +1,42 @@
+# Development Dockerfile with uv and hot reload (ARM64 Optimized for M4 Max)
+FROM --platform=linux/arm64 python:3.11-slim-bookworm
+
+ENV UV_LINK_MODE=copy \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app
+
+# Install system dependencies including jemalloc for ARM64 memory management
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    libjemalloc2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up jemalloc for better memory management on ARM64
+ENV LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libjemalloc.so.2
+ENV MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true"
+
+# Parallel compilation for faster builds
+ENV MAKEFLAGS="-j$(nproc)"
+ENV CFLAGS="-march=armv8.5-a+crypto+sve2"  # M4 architecture optimizations
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+WORKDIR /app
+
+# Copy dependency files
+COPY apps/agents/pyproject.toml apps/agents/uv.lock ./
+
+# Install dependencies (including dev dependencies for hot reload)
+RUN uv sync --frozen
+
+# Copy application code (will be overridden by volume mount)
+COPY apps/agents/app ./app
+
+EXPOSE 8080
+
+# Default command with uvloop for better async performance on ARM64
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload", "--loop", "uvloop"]
+
