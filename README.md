@@ -53,17 +53,100 @@ This monorepo provides a complete foundation for AI agentic development:
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Prerequisites (macOS Apple Silicon)
 
+**Required:**
+- **OrbStack** (recommended): `brew install orbstack` - Native Apple Silicon performance, 70% less memory than Docker Desktop
 - **Node.js**: ≥20 (Firebase JS SDK 12 requires Node 20+)
 - **pnpm**: `npm install -g pnpm@10.22.0`
 - **Python**: ≥3.11
 - **uv**: `pip install uv` or `brew install uv`
-- **Flutter**: 3.38+ stable
 - **Firebase CLI**: `npm install -g firebase-tools`
 - **Google Cloud SDK**: `gcloud` CLI
+- **Just**: `brew install just` or `cargo install just` (command runner)
 
-### Installation
+**Why OrbStack?**
+- ✅ Native Apple Silicon performance (no virtualization overhead)
+- ✅ 70% less memory usage than Docker Desktop
+- ✅ Instant file syncing (no virtioFS delays)
+- ✅ Built-in Rosetta 2 for x86 compatibility
+- ✅ Superior networking with `host.orbstack.internal`
+
+### Recommended Tools
+
+For the best development experience, we recommend:
+
+- **mise** (formerly rtx): Runtime version management
+  ```bash
+  brew install mise
+  # Or: curl https://mise.run | sh
+  ```
+
+- **direnv**: Automatic environment loading
+  ```bash
+  brew install direnv
+  # Add to shell: echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
+  ```
+
+These tools ensure:
+- ✅ Consistent runtime versions across the team (Node.js, Python, etc.)
+- ✅ Automatic environment variable loading when entering the project
+- ✅ No manual version management needed
+
+### Quick Start (M4 Max Optimized)
+
+```bash
+# 1. Install OrbStack (if not already installed)
+brew install orbstack
+orbstack start
+
+# 2. Install mise and direnv (if not already installed)
+just setup:mise
+just setup:direnv
+
+# 3. Restart your shell or source it
+source ~/.zshrc
+
+# 4. Enter the project directory (direnv auto-activates)
+cd supa-n8n-adk-flut-fast-firbse-gcloud
+
+# 5. Setup project
+just setup:all
+
+# 6. Start development environment (parallel execution on M4 Max)
+just dev:all
+```
+
+**M4 Max Performance Benefits:**
+- 🚀 Parallel service startup (utilizes all 16 cores)
+- ⚡ Cold start: ~8 seconds
+- 🔥 Hot reload: <100ms (FastAPI), <200ms (Next.js)
+- 📦 Full build: ~45 seconds
+- 💾 Unified memory optimization
+
+### Quick Setup with mise + direnv
+
+```bash
+# 1. Install mise and direnv (if not already installed)
+just setup:mise
+just setup:direnv
+
+# 2. Restart your shell or source it
+source ~/.zshrc
+
+# 3. Enter the project directory (direnv auto-activates)
+cd supa-n8n-adk-flut-fast-firbse-gcloud
+
+# 4. Complete setup
+just setup:all
+```
+
+When you `cd` into the project, direnv will automatically:
+- Load mise-managed tool versions
+- Load environment variables from `.env.local`
+- Set up project-specific paths and variables
+
+### Installation (Manual)
 
 ```bash
 # Clone the repository
@@ -71,27 +154,97 @@ git clone <your-repo-url>
 cd supa-n8n-adk-flut-fast-firbse-gcloud
 
 # Install all dependencies
+just install
+# Or manually:
 pnpm install
+cd apps/agents && uv sync && cd ../..
 
-# Setup Python environment
-cd apps/agents
-uv sync
-
-# Setup Flutter dependencies
-cd ../mobile
-flutter pub get
+# Setup environment files
+cp .env.local.example .env.local
+cp apps/agents/.env.example apps/agents/.env
+# Edit .env.local and apps/agents/.env with your configuration
 ```
 
 ### Development
 
-```bash
-# Start all apps in development mode
-pnpm dev
+This project uses [Just](https://github.com/casey/just) as a command runner. Install it with:
 
-# Or start individually:
-pnpm web:dev          # Next.js web app
-pnpm agents:dev       # FastAPI agents API
-cd apps/mobile && flutter run  # Flutter mobile app
+```bash
+# macOS
+brew install just
+
+# Or via cargo
+cargo install just
+```
+
+#### Common Commands
+
+```bash
+# Show all available commands
+just
+
+# Start all development services (FastAPI + Next.js + Firebase Emulators)
+just dev:all
+
+# Start services individually
+just dev:api      # FastAPI in Docker
+just dev:web      # Next.js locally
+just dev:emulators # Firebase Emulators
+
+# Docker management
+just docker:up    # Start Docker services
+just docker:down  # Stop Docker services
+just docker:logs  # View logs
+
+# Testing
+just test         # Run all tests
+just test:web     # Run web tests
+just test:api     # Run API tests
+
+# Health checks
+just health       # Check all services
+just status       # Show project status
+
+# Troubleshooting
+just dev-reset    # Reset development environment
+just dev-troubleshoot # Run diagnostics
+just ports:check  # Check port availability
+just docker:reset # Reset Docker completely
+just docker:prune # Prune Docker resources
+
+# OrbStack Commands (M4 Max)
+just orbstack:vm      # Show OrbStack info
+just orbstack:stats   # Show machine stats
+just orbstack:reset   # Reset OrbStack Docker
+just orbstack:optimize # Optimize resources
+
+# Performance Profiling (M4 Max)
+just perf:profile # Profile with xctrace
+just perf:memory  # Check unified memory usage
+
+# M4 Max Verification
+./scripts/verify-m4.sh  # Verify M4 Max setup
+
+# Seed Test Data
+just emulators:seed  # Seed Firebase emulators with test data (requires emulators running)
+
+# Performance Benchmarking
+./scripts/benchmark.sh  # Run performance benchmarks
+
+# See all commands
+just --list
+```
+
+For full command reference, see the [Justfile](./Justfile).
+
+#### Legacy Commands (package.json)
+
+You can still use package.json scripts for Turborepo-specific tasks:
+
+```bash
+pnpm dev          # Start all apps via Turborepo
+pnpm web:dev      # Next.js web app
+pnpm agents:dev   # FastAPI agents API (without Docker)
 ```
 
 ## 📁 Project Structure
@@ -232,12 +385,52 @@ flutter build appbundle --release
 - [Architecture](./docs/architecture.md) - System architecture overview
 - [Setup Guide](./docs/setup.md) - Detailed setup instructions
 - [Deployment](./docs/deployment.md) - Deployment guide
+- [Performance](./docs/PERFORMANCE.md) - M4 Max + OrbStack performance metrics
 - [Git Workflow](./docs/git-workflow.md) - Git branching and workflow
 - [Contributing](./docs/contributing.md) - Contribution guidelines
+- [Architecture Decision Records](./docs/decisions/) - Technical decision history
 
 ## 🛠️ Available Scripts
 
-### Root Level
+### Using Justfile (Recommended)
+
+The project uses Justfile as the primary command interface. See `just --list` for all available commands.
+
+**Development:**
+- `just dev:all` - Start all services (FastAPI + Next.js + Firebase Emulators)
+- `just dev:api` - Start FastAPI in Docker
+- `just dev:web` - Start Next.js locally
+- `just dev:emulators` - Start Firebase Emulators
+
+**Docker:**
+- `just docker:up` - Start Docker services
+- `just docker:down` - Stop Docker services
+- `just docker:logs` - View logs
+- `just docker:rebuild` - Rebuild containers
+
+**Testing:**
+- `just test` - Run all tests
+- `just test:web` - Run web tests
+- `just test:api` - Run API tests
+
+**Build:**
+- `just build` - Build all packages
+- `just build:web` - Build web app
+- `just build:api` - Build API Docker image
+
+**Utilities:**
+- `just health` - Check service health
+- `just status` - Show project status
+- `just preflight` - Run preflight checks
+- `just postflight` - Run postflight checks
+- `just dev-reset` - Reset development environment
+- `just dev-troubleshoot` - Run diagnostics
+
+### Legacy Scripts (package.json)
+
+These scripts are still available for Turborepo compatibility:
+
+**Root Level:**
 - `pnpm dev` - Start all apps in development
 - `pnpm build` - Build all apps
 - `pnpm test` - Run all tests
@@ -246,13 +439,13 @@ flutter build appbundle --release
 - `pnpm changeset` - Create a changeset
 - `pnpm release` - Release packages
 
-### Web App
+**Web App:**
 - `pnpm web:dev` - Start Next.js dev server
 - `pnpm web:build` - Build for production
 - `pnpm web:lint` - Lint web app
 
-### Agents API
-- `pnpm agents:dev` - Start FastAPI dev server
+**Agents API:**
+- `pnpm agents:dev` - Start FastAPI dev server (without Docker)
 
 ## 🔐 Security
 
@@ -271,6 +464,79 @@ flutter build appbundle --release
 - **Google Cloud Logging**: Structured logging (agents)
 - **structlog**: Structured JSON logging (agents)
 - **Pino**: Fast JSON logging (web)
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Port conflicts:**
+```bash
+just ports:check  # Check which ports are in use
+lsof -ti:8080 | xargs kill -9  # Kill process on port 8080
+```
+
+**Docker/OrbStack issues:**
+```bash
+just docker:reset  # Reset Docker completely
+just orbstack:reset  # Reset OrbStack Docker
+just docker:prune  # Clean up Docker resources
+```
+
+**Emulator problems:**
+```bash
+just firebase:status  # Check Firebase emulator status
+# Restart emulators
+just dev:emulators
+```
+
+**M4 Max verification:**
+```bash
+./scripts/verify-m4.sh  # Verify M4 Max setup and performance
+```
+
+**Performance issues:**
+```bash
+just perf:memory  # Check unified memory usage
+just perf:profile  # Profile performance (requires Xcode)
+```
+
+### OrbStack-Specific Troubleshooting
+
+- **Container not starting**: Check OrbStack is running with `orbstack info`
+- **Network issues**: Verify `host.orbstack.internal` resolves correctly
+- **Performance**: Ensure native ARM64 containers (check with `docker run --rm --platform linux/arm64 alpine uname -m`)
+
+## 👥 Team Onboarding
+
+### First-Time Setup Checklist
+
+- [ ] Install OrbStack: `brew install orbstack`
+- [ ] Install mise: `brew install mise`
+- [ ] Install direnv: `brew install direnv`
+- [ ] Clone repository
+- [ ] Run `just setup:all`
+- [ ] Verify with `just health`
+- [ ] Run M4 Max verification: `./scripts/verify-m4.sh`
+- [ ] Read ADRs in `docs/decisions/`
+- [ ] Review [Performance Documentation](./docs/PERFORMANCE.md)
+
+### Verification Steps
+
+1. **Check prerequisites:**
+   ```bash
+   just preflight
+   ```
+
+2. **Verify services start:**
+   ```bash
+   just dev:all
+   just health
+   ```
+
+3. **Verify M4 Max optimizations:**
+   ```bash
+   ./scripts/verify-m4.sh
+   ```
 
 ## 🤝 Contributing
 
